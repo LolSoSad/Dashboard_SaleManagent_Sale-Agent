@@ -1,0 +1,1642 @@
+ <!DOCTYPE html>
+
+<html class="h-full" lang="th">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Forklift-rental-dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<style>
+      :root {
+        --primary-color: #1F6FB2;  /* ฟ้าโลโก้ */
+        --secondary-color: #FF7A1A; /* ส้มโลโก้ */
+        --dark-text: #1e293b;
+        --muted-text: #64748b;
+        --bg-soft: #f5f7fb;
+        --card-border: #e2e8f0;
+      }
+  
+      * { box-sizing: border-box; }
+  
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Prompt', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background: var(--bg-soft);
+      }
+  
+      .main-wrapper {
+        min-height: 100vh;
+        padding: 2rem 1rem;
+        background: var(--bg-soft);
+      }
+  
+      .card {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 1.5rem;
+        border: 1px solid rgba(15, 23, 42, 0.05);
+        box-shadow: 0 10px 26px rgba(15, 23, 42, 0.04);
+        margin-bottom: 1rem;
+      }
+  
+      .card-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--dark-text);
+        margin: 0 0 1rem 0;
+      }
+  
+      /* Stats */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 0.75rem;
+      }
+      @media (max-width: 900px) {
+        .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      }
+      @media (max-width: 600px) {
+        .stats-grid { grid-template-columns: 1fr; }
+      }
+  
+      .dashboard-card {
+        border-radius: 18px;
+        box-shadow: 0 2px 12px #b6c6e21a;
+        background: #fff;
+        padding: 1.8rem 1.2rem 1.5rem;
+        transition: box-shadow 0.2s, transform 0.1s;
+        border: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .dashboard-card:hover {
+        box-shadow: 0 8px 24px #b6c6e23a;
+        transform: translateY(-2px);
+      }
+  
+      .icon-bg {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 30% 20%, #ffe7cf 0%, #ffd2a3 35%, #ffc48a 70%, #ffb36b 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: -32px;
+        margin-bottom: 0.4rem;
+        box-shadow: 0 6px 15px rgba(255, 122, 26, 0.35);
+        font-size: 1.4rem;
+      }
+      /* Icon color (orange) */
+      .icon-bg i {
+        color: var(--secondary-color);
+      }
+      /* Recolor PNG icon to orange */
+      .icon-bg img {
+        width: 30px;
+        height: 30px;
+        display: block;
+        filter: brightness(0) saturate(100%) invert(56%) sepia(90%) saturate(1865%) hue-rotate(345deg) brightness(102%) contrast(101%);
+      }
+
+      .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin: 0.1rem 0;
+        text-align: center;
+      }
+      .stat-title {
+        font-size: 0.9rem;
+        color: #7a8aa7;
+        margin-top: 0.2rem;
+        text-align: center;
+      }
+      .stat-breakdown {
+        margin-top: 0.3rem;
+        font-size: 0.78rem;
+        color: #1f2937;
+        width: 100%;
+        max-width: 180px;
+      }
+      .stat-breakdown-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.75rem;
+        font-weight: 600;
+      }
+      .stat-breakdown-row span:first-child {
+        letter-spacing: 0.03em;
+      }
+      .stat-breakdown-row span:last-child {
+        min-width: 40px;
+        text-align: right;
+        color: #1f2937;
+      }
+  
+      /* Layout grid */
+      .content-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.25rem;
+        margin-bottom: 1rem;
+      }
+      @media (max-width: 968px) {
+        .content-grid { grid-template-columns: 1fr; }
+      }
+  
+      /* Simple tables */
+      .simple-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.8rem;
+      }
+      .simple-table thead tr {
+        background: #e5edf8;
+        color: #1f2937;
+      }
+      .simple-table th,
+      .simple-table td {
+        padding: 0.5rem;
+      }
+      .simple-table th {
+        font-weight: 600;
+        text-align: left;
+      }
+      .simple-table td {
+        border-bottom: 1px solid #edf2f7;
+      }
+  
+          /* Charts */
+      .chart-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.25rem;
+        margin-top: 0.5rem;
+      }
+      @media (max-width: 768px) {
+        .chart-grid { grid-template-columns: 1fr; }
+      }
+      .chart-card {
+        background: #f9fbff;
+        border-radius: 12px;
+        border: 1px solid #e5edf8;
+        padding: 1rem 1.25rem;
+      }
+      .chart-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--dark-text);
+        margin-bottom: 0.4rem;
+      }
+      .chart-subtitle {
+        font-size: 0.75rem;
+        color: var(--muted-text);
+        margin-bottom: 0.6rem;
+      }
+  
+      .chart-filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+      }
+  
+      .chart-filters select {
+        padding: 0.3rem 0.75rem;
+        border-radius: 6px;
+        border: 1px solid #d1d5db;
+        background: #ffffff;
+        font-size: 0.8rem;
+        font-family: 'Prompt', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        color: #374151;
+      }
+      /* กราฟแท่งแนวตั้ง */
+      .chart-bars {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 0.75rem;
+        height: 180px;
+        padding: 0.25rem 0.25rem 0.1rem;
+      }
+      .chart-bar-col {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        height: 100%;
+        gap: 0.35rem;
+        font-size: 0.78rem;
+      }
+      .chart-bar-outer {
+        height: 100%;
+        display: flex;
+        align-items: flex-end;
+        width: 100%;
+        max-width: 26px;
+        background: #e5edf8;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .chart-bar {
+        width: 100%;
+        border-radius: 8px 8px 0 0;
+      }
+      .chart-bar.contracts {
+        background: linear-gradient(180deg, var(--primary-color), #4fa0e6);
+      }
+      .chart-bar.revenue {
+        background: linear-gradient(180deg, var(--secondary-color), #ff9b42);
+      }
+      .chart-value {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--dark-text);
+      }
+      .chart-label {
+        font-size: 0.78rem;
+        color: var(--muted-text);
+        text-align: center;
+      }
+  
+      /* Lists */
+      .scroll-list {
+        max-height: 320px;
+        overflow-y: auto;
+        padding-right: 4px;
+        margin-right: -4px;
+      }
+  
+      .contract-item {
+        padding: 1rem;
+        border-radius: 12px;
+        background: #f9fbff;
+        margin-bottom: 0.75rem;
+        border: 1px solid #e5edf8;
+      }
+      .contract-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.4rem;
+      }
+      .contract-id {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--dark-text);
+      }
+      .status-badge {
+        display: inline-block;
+        padding: 0.2rem 0.7rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+      .status-active {
+        background: #e3f0ff;
+        color: var(--primary-color);
+      }
+      .status-pending {
+        background: #fff3dc;
+        color: #b45309;
+      }
+      .status-approved {
+        background: #e0fcef;
+        color: #047857;
+      }
+      .contract-amount {
+        font-weight: 700;
+        font-size: 1.05rem;
+        color: var(--primary-color);
+        margin-bottom: 0.25rem;
+      }
+      .contract-details {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.8rem;
+        color: var(--muted-text);
+        gap: 0.75rem;
+      }
+      .contract-meta {
+        list-style-type: disc;
+        padding-left: 1.1rem;
+        margin: 0.15rem 0 0;
+        font-size: 0.78rem;
+        color: var(--muted-text);
+      }
+  
+      .quotation-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 0.9rem 0;
+        border-bottom: 1px solid #edf2f7;
+      }
+      .quotation-item:last-child { border-bottom: none; }
+      .quotation-info h4 {
+        margin: 0 0 0.15rem 0;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--dark-text);
+      }
+      .quotation-info p {
+        margin: 0;
+        font-size: 0.8rem;
+        color: var(--muted-text);
+      }
+      .quotation-meta {
+        list-style-type: disc;
+        padding-left: 1.1rem;
+        margin: 0.25rem 0 0;
+        font-size: 0.78rem;
+        color: var(--muted-text);
+      }
+      .quotation-amount {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin: 0 0 0.3rem 0;
+        text-align: right;
+      }
+  
+      /* Timeline */
+      .payment-timeline { position: relative; }
+      .timeline-item {
+        position: relative;
+        padding-left: 2rem;
+        padding-bottom: 1.1rem;
+      }
+      .timeline-item:last-child { padding-bottom: 0; }
+      .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: 0.45rem;
+        top: 0.6rem;
+        bottom: -1.1rem;
+        width: 2px;
+        background: #e2e8f0;
+      }
+      .timeline-item:last-child::before { display: none; }
+      .timeline-dot {
+        position: absolute;
+        left: 0;
+        top: 0.25rem;
+        width: 1rem;
+        height: 1rem;
+        border-radius: 50%;
+        background: #ffffff;
+        border: 3px solid var(--secondary-color);
+      }
+      .timeline-content h4 {
+        margin: 0 0 0.15rem 0;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--dark-text);
+      }
+      .timeline-content p {
+        margin: 0 0 0.2rem 0;
+        font-size: 0.78rem;
+        color: var(--muted-text);
+      }
+      .timeline-amount {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--primary-color);
+      }
+  
+      /* Fleet summary */
+      .financial-summary {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.9rem;
+        margin-top: 0.5rem;
+      }
+      .summary-item {
+        padding: 0.85rem 0.9rem;
+        background: #f9fbff;
+        border-radius: 12px;
+        border: 1px solid #e5edf8;
+      }
+      .summary-item.warning {
+        background: #fff7e6;
+        border-color: #fed7aa;
+      }
+      .summary-label {
+        font-size: 0.8rem;
+        color: var(--muted-text);
+        margin-bottom: 0.3rem;
+        font-weight: 500;
+      }
+      .summary-value {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--primary-color);
+      }
+      .alert-box {
+        padding: 0.85rem;
+        background: #fff7e6;
+        border-radius: 12px;
+        border: 1px solid #fed7aa;
+        margin-top: 0.8rem;
+        font-size: 0.8rem;
+        color: #b45309;
+      }
+      .alert-title {
+        font-weight: 600;
+        margin-bottom: 0.35rem;
+      }
+      .alert-item { margin-bottom: 0.15rem; }
+      .maintenance-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        margin-top: 0.25rem;
+      }
+      .maintenance-card {
+        padding: 0.45rem 0.7rem;
+        border-radius: 10px;
+        background: #ffffff;
+        border: 1px solid #fed7aa;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.78rem;
+        color: #b45309;
+      }
+      .maintenance-card span:first-child {
+        font-weight: 700;
+      }
+  
+      /* แถวหัวข้อการ์ด + ปุ่มด้านขวา */
+      .card-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+  
+      /* ปุ่ม "สัญญาเช่าทั้งหมด" */
+      .card-link-btn {
+        font-size: 0.8rem;
+        padding: 0.4rem 1.2rem;
+        border-radius: 999px;
+        border: none;
+        background: var(--primary-color);
+        color: #ffffff;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(31, 111, 178, 0.35);
+        transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+      }
+  
+            .card-link-btn:hover {
+        background: #17548a;
+        box-shadow: 0 6px 14px rgba(31, 111, 178, 0.45);
+        transform: translateY(-1px);
+        color: #ffffff;
+      }
+
+      /* Sale dropdown top-right */
+      .sale-dropdown {
+        position: relative;
+      }
+      .sale-toggle-btn {
+        padding: 0.4rem 1.4rem;
+        border-radius: 999px;
+        border: 1px solid #e5e7eb;
+        background: #ffffff;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--dark-text);
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(15,23,42,0.08);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+      }
+      .sale-toggle-btn:hover {
+        background: #f9fafb;
+      }
+      .sale-dropdown-menu {
+        position: absolute;
+        right: 0;
+        top: calc(100% + 0.4rem);
+        min-width: 190px;
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 12px 30px rgba(15,23,42,0.18);
+        padding: 0.4rem 0;
+        display: none;
+        z-index: 20;
+      }
+      .sale-dropdown-menu a {
+        display: block;
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+        color: #111827;
+        text-decoration: none;
+        white-space: nowrap;
+      }
+      .sale-dropdown-menu a:hover {
+        background: #f3f4ff;
+        color: var(--primary-color);
+      }
+      .sale-dropdown-menu a.active {
+        font-weight: 600;
+        background: #e5edf8;
+        color: var(--primary-color);
+      }
+      .sale-dropdown.open .sale-dropdown-menu {
+        display: block;
+      }
+    
+      /* Multi-select dropdown (checkbox) */
+      .mdrop{position:relative;width:100%;}
+      .mdrop-btn{width:100%;display:flex;align-items:center;justify-content:space-between;gap:0.75rem;
+        padding:0.55rem 0.75rem;border-radius:10px;border:1px solid #e5e7eb;background:#fff;
+        font-family:'Prompt',sans-serif;cursor:pointer;}
+      .mdrop-btn:focus{outline:none;box-shadow:0 0 0 3px rgba(31,111,178,0.18);}
+      .mdrop-caret{opacity:0.7;}
+      .mdrop-panel{position:absolute;left:0;right:0;top:calc(100% + 8px);z-index:50;
+        background:#fff;border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 12px 28px rgba(2,6,23,0.12);
+        padding:0.5rem;display:none;max-height:280px;overflow:auto;}
+      .mdrop.open .mdrop-panel{display:block;}
+      .mdrop-actions{display:flex;gap:0.5rem;justify-content:flex-end;position:sticky;top:0;background:#fff;padding-bottom:0.5rem;margin-bottom:0.25rem;border-bottom:1px solid #f1f5f9;}
+      .mdrop-action{border:1px solid #e5e7eb;background:#fff;border-radius:999px;padding:0.35rem 0.7rem;cursor:pointer;font-weight:600;font-size:0.78rem;}
+      .mdrop-action:hover{background:#f8fafc;}
+      .mdrop-list{display:flex;flex-direction:column;gap:0.25rem;}
+      .mdrop-item{display:flex;align-items:center;gap:0.55rem;padding:0.45rem 0.55rem;border-radius:10px;cursor:pointer;}
+      .mdrop-item:hover{background:#f8fafc;}
+      .mdrop-item input{width:16px;height:16px;}
+      .mdrop-item span{font-size:0.9rem;color:#0f172a;}
+
+    
+      canvas{display:block; width:100% !important;}
+      .chart-box{min-height:320px;}
+
+      .col-stack{display:flex;flex-direction:column;gap:15px;}
+</style>
+</head>
+<body class="h-full">
+<div class="main-wrapper">
+<div style="max-width: 1400px; margin: 0 auto;">
+<!-- Top-right Sale switcher -->
+<div style="display:flex; justify-content:flex-end; margin-bottom:1rem;">
+<div class="sale-dropdown">
+<button class="sale-toggle-btn" type="button">Sale Team Performance ▾</button>
+<div class="sale-dropdown-menu">
+<a class="active" href="sale-only.html">Sale Team Performance</a>
+<a href="agent-only.html">Agent Performance</a>
+<a href="sale-manager.html">Total (Sale & Agent)</a>
+</div>
+</div>
+</div>
+<!-- Stats Grid -->
+<div class="stats-grid">
+<!-- รถยกที่อยู่ในสัญญาบริการ + Breakdown -->
+<div class="dashboard-card text-center">
+<div class="icon-bg"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAEZElEQVR4AexWbYhUZRR+zjuruPbBKvojAg2Xsq/NgugDIrZf6UK4s9uWWZkUKRStZbmzH4Wboc3OamlF6lIgwRI0zoy6bUb+aMH6YYltFhRSllhCHwgZ7miz956e9+6dab6cnRmCQrycc897znve9zz3nPfjGvzHzwUA/68MaF/LRvL2c3I4uFnDwSXa21iTvXS0r/URfaVtZrat3HZ+BpZx4IpzssgqiLyL6TP2aW/bxfTzSbcg5TztKxWJfAD+YGUgrITkMeR5OvwGlUbUOtvYTtP7bNxPrpiKA6g9s0M64gMFHIqtJ6iFjHKavFT7W2+lBFSjlFdpeHEDZUVUHECJKQjqEERfp4sw8AZKYPqZD9k+BQm0eXoFr4oBeHPX1LxB6UJxl0aa66V971kYYRn0PtoroqoAyOroz4xykCxA4EFKlkFYBplfaRmqAuAFFIzAPqrNVqB2bG81ZagegOoBLzCwQDfeM6vaMlQPAPKZD8DAmXqH11a/DP3B6z29jFdxAMlpyzXSsiLDRbaXhOI/cf4TZJJ7M1/IlMFB2buhOADIFq7w7RmWmkF9ry3gBcl9jU6ocpOVmTIIyj6UjD1M0l/KSaaRi5A24Ifxx4t0fOXbrvblP7uhzDIYuDqY+VLgksxEBQ1Zp6821+WYFYd9fa72P3yRl6Xk1E+gegpllsGWYI4/yWRiNv4yx7Wv5WSaeSyn74MA3NOHcdQ5htqzT8IeSmWWwQIYmyxyVr+9AWdQT3N2xuYR0OXsCyK9G8Kt11EvSRbAsTyPFPWvyXaVU5QkjlV7Qb3A4BF6HicvgGOOUP4J0aK7QV9bdKmGW5ZqX7DdAviSzj5JHDD2Gt5Pw9sQ915KOylFHgk+pmUfID1QvERew9QnCOQAzHgT5RDXQgaAXT/8mVnG8u1GsvYX9g8y1kID0S8w8RziJPwidytUrqDpAagZgItVbDvkbEpCXQbHozQ+A0fnU/ZwQT8F1RhEmmHLIHItA3aRh7l+GFR2QHAZFGs5b72EYk2GAz6F9/DrRdvZXGQ7kDxp6/cNjC7mIH+/s9eS2GPY3AnILh5Im6U7cYTyZfrZrNhDqQ7uFDvmDwDryTPJ3XDdebzOb5HOeES64kdpg0HyxoMWDVzHAkmhIz5iO6R3ZJybmm25hllqmvBBvSdTzhICt+DzM8OhYvgahaQa4MhtqHHmEtzt5E3StetH9uWQkd5e10MzxbELzyASDFoPu68BaQIwKmsSv1qfDPfsYToxzC8OMr2PabhtjoZbV4P/B7QNM9hD0hkbku7Yt/Ls7uJrCBOPReu15Lmh3zn4RUCinPRz7uvvAcwCxmljK5/qZm9lhriQ8BaE+190E8dvw9gN7+S7ltIzAKwT67MBYhqZ3g+or4MGGiS05wTbBSQrB1ISSixnmlkiczfcwJUc/4TNaIFzCYPJ75OOnfulM7FWQvE3pTNqF1G+S47upblj50fSFf0up6NMpQBAmeP+NbfzH8BkqfobAAD//wBz+t8AAAAGSURBVAMAo+bAUORC9y0AAAAASUVORK5CYII=" alt="forklift" style="width:30px;height:30px;display:block;"></div>
+<div class="stat-value">38</div>
+<div class="stat-title">รถยกที่อยู่ในสัญญาบริการ</div>
+<div class="stat-breakdown">
+<div class="stat-breakdown-row">
+<span>LPE200</span>
+<span>25 คัน</span>
+</div>
+<div class="stat-breakdown-row">
+<span>LHE150</span>
+<span>13 คัน</span>
+</div>
+</div>
+</div>
+<!-- จำนวนสัญญาทั้งหมด -->
+<div class="dashboard-card text-center">
+<div class="icon-bg"><i class="fas fa-file-contract"></i></div>
+<div class="stat-value">22</div>
+<div class="stat-title">จำนวนสัญญาทั้งหมด</div>
+<div style="margin-top:0.35rem; font-size:0.8rem; width:100%; max-width:210px;">
+<div style="display:flex; justify-content:space-between; gap:0.5rem; color:#000000;">
+<span>สัญญาทั้งหมด</span>
+<span style="font-weight:600; text-align:right; min-width:40px;">22</span>
+</div>
+<div style="display:flex; justify-content:space-between; gap:0.5rem; margin-top:0.15rem; color:#000000;">
+<span>สัญญาใกล้ครบกำหนด</span>
+<span style="font-weight:600; text-align:right; min-width:40px;">10</span>
+</div>
+</div>
+</div>
+<!-- จำนวนรถที่พร้อมขาย -->
+<div class="dashboard-card text-center">
+<div class="icon-bg"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAEZElEQVR4AexWbYhUZRR+zjuruPbBKvojAg2Xsq/NgugDIrZf6UK4s9uWWZkUKRStZbmzH4Wboc3OamlF6lIgwRI0zoy6bUb+aMH6YYltFhRSllhCHwgZ7miz956e9+6dab6cnRmCQrycc897znve9zz3nPfjGvzHzwUA/68MaF/LRvL2c3I4uFnDwSXa21iTvXS0r/URfaVtZrat3HZ+BpZx4IpzssgqiLyL6TP2aW/bxfTzSbcg5TztKxWJfAD+YGUgrITkMeR5OvwGlUbUOtvYTtP7bNxPrpiKA6g9s0M64gMFHIqtJ6iFjHKavFT7W2+lBFSjlFdpeHEDZUVUHECJKQjqEERfp4sw8AZKYPqZD9k+BQm0eXoFr4oBeHPX1LxB6UJxl0aa66V971kYYRn0PtoroqoAyOroz4xykCxA4EFKlkFYBplfaRmqAuAFFIzAPqrNVqB2bG81ZagegOoBLzCwQDfeM6vaMlQPAPKZD8DAmXqH11a/DP3B6z29jFdxAMlpyzXSsiLDRbaXhOI/cf4TZJJ7M1/IlMFB2buhOADIFq7w7RmWmkF9ry3gBcl9jU6ocpOVmTIIyj6UjD1M0l/KSaaRi5A24Ifxx4t0fOXbrvblP7uhzDIYuDqY+VLgksxEBQ1Zp6821+WYFYd9fa72P3yRl6Xk1E+gegpllsGWYI4/yWRiNv4yx7Wv5WSaeSyn74MA3NOHcdQ5htqzT8IeSmWWwQIYmyxyVr+9AWdQT3N2xuYR0OXsCyK9G8Kt11EvSRbAsTyPFPWvyXaVU5QkjlV7Qb3A4BF6HicvgGOOUP4J0aK7QV9bdKmGW5ZqX7DdAviSzj5JHDD2Gt5Pw9sQ915KOylFHgk+pmUfID1QvERew9QnCOQAzHgT5RDXQgaAXT/8mVnG8u1GsvYX9g8y1kID0S8w8RziJPwidytUrqDpAagZgItVbDvkbEpCXQbHozQ+A0fnU/ZwQT8F1RhEmmHLIHItA3aRh7l+GFR2QHAZFGs5b72EYk2GAz6F9/DrRdvZXGQ7kDxp6/cNjC7mIH+/s9eS2GPY3AnILh5Im6U7cYTyZfrZrNhDqQ7uFDvmDwDryTPJ3XDdebzOb5HOeES64kdpg0HyxoMWDVzHAkmhIz5iO6R3ZJybmm25hllqmvBBvSdTzhICt+DzM8OhYvgahaQa4MhtqHHmEtzt5E3StetH9uWQkd5e10MzxbELzyASDFoPu68BaQIwKmsSv1qfDPfsYToxzC8OMr2PabhtjoZbV4P/B7QNM9hD0hkbku7Yt/Ls7uJrCBOPReu15Lmh3zn4RUCinPRz7uvvAcwCxmljK5/qZm9lhriQ8BaE+190E8dvw9gN7+S7ltIzAKwT67MBYhqZ3g+or4MGGiS05wTbBSQrB1ISSixnmlkiczfcwJUc/4TNaIFzCYPJ75OOnfulM7FWQvE3pTNqF1G+S47upblj50fSFf0up6NMpQBAmeP+NbfzH8BkqfobAAD//wBz+t8AAAAGSURBVAMAo+bAUORC9y0AAAAASUVORK5CYII=" alt="forklift" style="width:30px; height:30px; object-fit:contain;"></div>
+<div class="stat-value">45</div>
+<div class="stat-title">จำนวนรถที่พร้อมขาย</div>
+</div>
+<!-- ลูกค้าทั้งหมด -->
+<div class="dashboard-card text-center">
+<div class="icon-bg">☰</div>
+<div class="stat-value">155</div>
+<div class="stat-title">ลูกค้าทั้งหมด</div>
+<div class="stat-breakdown">
+<div class="stat-breakdown-row">
+<span>บัญชีนิติบุคคล</span>
+<span>100</span>
+</div>
+<div class="stat-breakdown-row">
+<span>บัญชีบุคคลธรรมดา</span>
+<span>20</span>
+</div>
+<div class="stat-breakdown-row">
+<span>บัญชีลีด</span>
+<span>35</span>
+</div>
+</div>
+</div>
+</div>
+<!-- สรุปข้อมูลการเช่า : Compare Sale & Agent + Date Range -->
+<div class="card" id="monthly-sale-summary" style="max-width: 1400px; margin: 0 auto;">
+  <h2 class="card-title">สรุปข้อมูลการเช่า (Sale & Agent)</h2>
+  <p style="font-size: 0.85rem; color: var(--muted-text); margin-top: -0.25rem; margin-bottom: 0.9rem;">
+    เปรียบเทียบผลงานรวมระหว่าง <b>Sale</b> และ <b>Agent</b> ตามช่วงวันที่ที่เลือก (จำนวนใบเสนอราคา และจำนวนสัญญาบริการ)
+  </p>
+
+  <!-- Filters -->
+  <div style="display:flex; flex-wrap:wrap; gap:0.75rem; align-items:flex-end; margin-bottom:1rem;">
+    <div style="min-width:220px;">
+      <div style="font-size:0.78rem; color:var(--muted-text); margin-bottom:0.35rem;">เลือกช่วงวันเริ่มต้น</div>
+      <input id="saleStartDate" type="date" style="width:100%; padding:0.55rem 0.75rem; border-radius:10px; border:1px solid #e5e7eb; font-family:'Prompt',sans-serif;">
+    </div>
+    <div style="min-width:220px;">
+      <div style="font-size:0.78rem; color:var(--muted-text); margin-bottom:0.35rem;">เลือกช่วงวันสิ้นสุด</div>
+      <input id="saleEndDate" type="date" style="width:100%; padding:0.55rem 0.75rem; border-radius:10px; border:1px solid #e5e7eb; font-family:'Prompt',sans-serif;">
+    </div>
+
+    <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+      <button id="saleApplyBtn" type="button"
+        style="padding:0.6rem 1rem; border-radius:999px; border:none; background:var(--primary-color); color:#fff; font-weight:700; cursor:pointer; box-shadow: 0 4px 10px rgba(31,111,178,0.35);">
+        อัปเดตกราฟ
+      </button>
+      <button id="saleResetBtn" type="button"
+        style="padding:0.6rem 1rem; border-radius:999px; border:1px solid #e5e7eb; background:#fff; color:#111827; font-weight:700; cursor:pointer;">
+        รีเซ็ต
+      </button>
+    </div>
+  </div>
+
+  <!-- Summary chips -->
+  <div id="saleSummaryChips" style="display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 0.75rem; margin-bottom: 1rem;"></div>
+
+  <!-- Chart -->
+  <div class="chart-card" style="background:#ffffff; border:1px solid #e5edf8;">
+    <div class="chart-title">กราฟเปรียบเทียบ Sale vs Agent (ตามช่วงวันที่ที่เลือก)</div>
+    <div class="chart-subtitle">แสดงยอดรวมในช่วงวันเริ่มต้น–สิ้นสุด (จำนวนใบเสนอราคา และจำนวนสัญญาบริการ)</div>
+    <div style="position:relative; min-height:260px;">
+      <canvas id="saleCompareChart" height="260"></canvas>
+    </div>
+  </div>
+
+  <!-- Tables -->
+  <div style="margin-top:1rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:0.75rem; margin-bottom:0.5rem;">
+      <div style="font-size:0.95rem; font-weight:600; color:var(--dark-text);">สรุป Sale & Agent (ตาราง)</div>
+      <div id="saleTableRange" style="font-size:0.78rem; color:var(--muted-text);"></div>
+    </div>
+
+    <div class="content-grid" style="margin-bottom:0;">
+      <div style="overflow-x:auto;">
+        <div style="font-size:0.88rem; font-weight:700; color:var(--primary-color); margin-bottom:0.35rem;">Sale</div>
+        <table class="simple-table" id="saleSummaryTableSale">
+          <thead>
+            <tr>
+              <th style="text-align:center; width:60px;">ลำดับ</th>
+              <th>Sale</th>
+              <th style="text-align:right;">จำนวนใบเสนอราคา</th>
+              <th style="text-align:right;">จำนวนสัญญาบริการ</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <div style="font-size:0.88rem; font-weight:700; color:var(--secondary-color); margin-bottom:0.35rem;">Agent</div>
+        <table class="simple-table" id="saleSummaryTableAgent">
+          <thead>
+            <tr>
+              <th style="text-align:center; width:60px;">ลำดับ</th>
+              <th>Agent</th>
+              <th style="text-align:right;">จำนวนใบเสนอราคา</th>
+              <th style="text-align:right;">จำนวนสัญญาบริการ</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Charts -->
+<div class="card" style="max-width: 1400px; margin: 0 auto; margin-top: 15px;">
+<h2 class="card-title">กราฟสรุปรุ่นรถยกที่ทำสัญญา และจำนวนรถยกที่ Sale ทำสัญญา</h2>
+<p style="font-size:0.8rem; color:var(--muted-text); margin-top:-0.2rem; margin-bottom:0.6rem;">
+            มองภาพรวม “รุ่นรถยกที่ทำสัญญา” และ “จำนวนรถยกที่ Sale ทำสัญญา” (ตัวอย่างข้อมูลจำลอง)</p>
+<div class="chart-grid">
+  <!-- ซ้าย: กราฟสรุปจำนวนสัญญา -->
+  <div class="chart-card">
+    <div class="card-title" style="font-size:0.9rem;">กราฟสรุปรุ่นรถยกที่ทำสัญญา</div>
+    <div class="chart-filters">
+      <div style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
+        <div style="display:flex; flex-direction:column; gap:0.25rem;">
+          <div style="font-size:0.75rem; color:var(--muted-text);">ช่วงวันเริ่ม (Start)</div>
+          <input id="modelStartDate" type="date" style="padding:0.45rem 0.7rem; border-radius:0.6rem; border:1px solid #e5e7eb; width:170px; font-family:'Prompt',sans-serif;">
+        </div>
+        <div style="display:flex; flex-direction:column; gap:0.25rem;">
+          <div style="font-size:0.75rem; color:var(--muted-text);">ช่วงวันสิ้นสุด (End)</div>
+          <input id="modelEndDate" type="date" style="padding:0.45rem 0.7rem; border-radius:0.6rem; border:1px solid #e5e7eb; width:170px; font-family:'Prompt',sans-serif;">
+        </div>
+      </div>
+</div>
+    <div style="position:relative; min-height:220px; margin-top: 12px;">
+      <canvas id="modelHoursChart" height="260"></canvas>
+    </div>
+  </div>
+
+  <!-- ขวา: กราฟสรุปการชำระเงินแพ็ค/ชม. (แท่งสีส้ม) -->
+  <div class="chart-card">
+    <div class="card-title" style="font-size:0.9rem;">กราฟจำนวนรถยกที่ Sale ทำสัญญา</div>
+    <div class="chart-subtitle" style="margin-top:-0.35rem;">
+      แสดงจำนวนรถยกที่ทำสัญญา เลือกมุมมอง Sale&Agent / Sale / Agent (ตัวอย่างข้อมูลจำลอง) ตามช่วงวันที่ที่เลือก
+    </div>
+    <div class="chart-filters" style="margin-top: 8px;">
+      <div style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
+        <div style="display:flex; flex-direction:column; gap:0.25rem;">
+          <div style="font-size:0.75rem; color:var(--muted-text);">ช่วงวันเริ่ม (Start)</div>
+          <input id="saleForkStartDate" type="date" style="width:100%; padding:0.55rem 0.75rem; border-radius:10px; border:1px solid #e5e7eb; width:170px; font-family:'Prompt',sans-serif;">
+        </div>
+        <div style="display:flex; flex-direction:column; gap:0.25rem;">
+          <div style="font-size:0.75rem; color:var(--muted-text);">ช่วงวันสิ้นสุด (End)</div>
+          <input id="saleForkEndDate" type="date" style="width:100%; padding:0.55rem 0.75rem; border-radius:10px; border:1px solid #e5e7eb; width:170px; font-family:'Prompt',sans-serif;">
+        </div>
+        <div style="display:flex; flex-direction:column; gap:0.25rem; min-width:240px; flex:1;">
+          <div style="font-size:0.75rem; color:var(--muted-text);">มุมมอง</div>
+          <select id="saleForkSaleFilter" style="padding:0.45rem 0.7rem; border-radius:0.6rem; border:1px solid #e5e7eb; width:100%; font-family:'Prompt',sans-serif;">
+            
+            <option value="SALE_AGENT" selected>Sale&Agent (รวม)</option>
+            <option value="SALE">Sale</option>
+            <option value="AGENT">Agent</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div style="position:relative; min-height:220px; margin-top: 12px;">
+      <canvas id="saleForkliftChart" height="260"></canvas>
+    </div>
+  </div>
+</div>
+</div>
+<!-- Active contracts (Split: Sale | Agent) -->
+<div class="content-grid" style="max-width: 1400px; margin: 0 auto; margin-top: 15px;">
+  <!-- สัญญาเช่าที่ใช้งานอยู่ -->
+  <div class="card">
+    <div class="card-header-row">
+      <h2 class="card-title">สัญญาเช่าที่ใช้งานอยู่ (Sale)</h2>
+      <button class="card-link-btn" type="button">สัญญาเช่าทั้งหมด</button>
+    </div>
+    <div class="scroll-list">
+      <div class="contract-item">
+        <div class="contract-header">
+          <div class="contract-id">CT250010 (Sale - คุณเอ)</div>
+          <span class="status-badge status-active">Active</span>
+        </div>
+        <div class="contract-amount">฿85,000/งวด</div>
+        <div class="contract-details">
+          <div>
+            <span>บริษัท โลจิสติกส์ โปร จำกัด</span>
+            <ul class="contract-meta">
+              <li>Model LHE จำนวน 1 คัน</li>
+              <li>Model LPE จำนวน 2 คัน</li>
+            </ul>
+          </div>
+          <span>สิ้นสุด: 15 มี.ค. 2567</span>
+        </div>
+      </div>
+
+      <div class="contract-item">
+        <div class="contract-header">
+          <div class="contract-id">CT250011 (Sale - คุณซี)</div>
+          <span class="status-badge status-active">Active</span>
+        </div>
+        <div class="contract-amount">฿125,000/งวด</div>
+        <div class="contract-details">
+          <div>
+            <span>ห้างหุ้นส่วน ไทยคลัง</span>
+            <ul class="contract-meta">
+              <li>Model LHE จำนวน 2 คัน</li>
+              <li>Model LPE จำนวน 3 คัน</li>
+            </ul>
+          </div>
+          <span>สิ้นสุด: 28 ก.พ. 2567</span>
+        </div>
+      </div>
+
+      <div class="contract-item">
+        <div class="contract-header">
+          <div class="contract-id">CT250012 (Sale - คุณบี)</div>
+          <span class="status-badge status-active">Active</span>
+        </div>
+        <div class="contract-amount">฿45,000/งวด</div>
+        <div class="contract-details">
+          <div>
+            <span>บริษัท แมนูแฟคเจอริ่ง</span>
+            <ul class="contract-meta">
+              <li>Model LHE จำนวน 1 คัน</li>
+              <li>Model LPE จำนวน 1 คัน</li>
+            </ul>
+          </div>
+          <span>เริ่ม: 25 ม.ค. 2567</span>
+        </div>
+      </div>
+
+      <div class="contract-item">
+        <div class="contract-header">
+          <div class="contract-id">CT250013 (Sale - คุณดี)</div>
+          <span class="status-badge status-active">Active</span>
+        </div>
+        <div class="contract-amount">฿60,000/งวด</div>
+        <div class="contract-details">
+          <div>
+            <span>บริษัท คลังสินค้าไทย</span>
+            <ul class="contract-meta">
+              <li>Model LHE จำนวน 1 คัน</li>
+              <li>Model LPE จำนวน 1 คัน</li>
+            </ul>
+          </div>
+          <span>สิ้นสุด: 30 เม.ย. 2567</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header-row">
+      <h2 class="card-title">สัญญาเช่าที่ใช้งานอยู่ (Agent)</h2>
+      <button class="card-link-btn" type="button">สัญญาเช่าทั้งหมด</button>
+    </div>
+    <div class="scroll-list">
+      <div class="contract-item">
+        <div class="contract-header">
+          <div class="contract-id">CT250020 (Agent - Agent A)</div>
+          <span class="status-badge status-active">Active</span>
+        </div>
+        <div class="contract-amount">฿72,000/งวด</div>
+        <div class="contract-details">
+          <div>
+            <span>บริษัท เทรดดิ้ง เซ็นเตอร์</span>
+            <ul class="contract-meta">
+              <li>Model LHE จำนวน 1 คัน</li>
+              <li>Model LPE จำนวน 1 คัน</li>
+            </ul>
+          </div>
+          <span>สิ้นสุด: 10 พ.ค. 2567</span>
+        </div>
+      </div>
+
+      <div class="contract-item">
+        <div class="contract-header">
+          <div class="contract-id">CT250021 (Agent - Agent B)</div>
+          <span class="status-badge status-active">Active</span>
+        </div>
+        <div class="contract-amount">฿90,000/งวด</div>
+        <div class="contract-details">
+          <div>
+            <span>บริษัท ซัพพลายเชน โซลูชั่น</span>
+            <ul class="contract-meta">
+              <li>Model LHE จำนวน 2 คัน</li>
+              <li>Model LPE จำนวน 1 คัน</li>
+            </ul>
+          </div>
+          <span>สิ้นสุด: 20 มี.ค. 2567</span>
+        </div>
+      </div>
+
+      <div class="contract-item">
+        <div class="contract-header">
+          <div class="contract-id">CT250022 (Agent - Agent C)</div>
+          <span class="status-badge status-active">Active</span>
+        </div>
+        <div class="contract-amount">฿58,000/งวด</div>
+        <div class="contract-details">
+          <div>
+            <span>บริษัท เวร์เฮ้าส์ โซลูชั่น</span>
+            <ul class="contract-meta">
+              <li>Model LPE จำนวน 2 คัน</li>
+              <li>Model RRE จำนวน 1 คัน</li>
+            </ul>
+          </div>
+          <span>เริ่ม: 03 ก.พ. 2567</span>
+        </div>
+      </div>
+
+      <div class="contract-item">
+        <div class="contract-header">
+          <div class="contract-id">CT250023 (Agent - Agent D)</div>
+          <span class="status-badge status-active">Active</span>
+        </div>
+        <div class="contract-amount">฿110,000/งวด</div>
+        <div class="contract-details">
+          <div>
+            <span>ห้างหุ้นส่วน คอนสตรัคชั่น</span>
+            <ul class="contract-meta">
+              <li>Model LHE จำนวน 1 คัน</li>
+              <li>Model LPE จำนวน 2 คัน</li>
+              <li>Model RRE จำนวน 1 คัน</li>
+            </ul>
+          </div>
+          <span>สิ้นสุด: 18 มิ.ย. 2567</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="content-grid" style="max-width: 1400px; margin: 0 auto; margin-top: 15px;">
+  <!-- รออนุมัติสัญญาบริการ -->
+  <div class="card">
+    <div class="card-header-row">
+      <h2 class="card-title">รออนุมัติสัญญาบริการ (Sale)</h2>
+      <button class="card-link-btn" type="button">ดูทั้งหมด</button>
+    </div>
+    <div class="scroll-list">
+      <div class="contract-item">
+        <div class="contract-header">
+          <div class="contract-id">SV250010 (Sale - คุณเอ)</div>
+          <span class="status-badge status-pending">Pending</span>
+        </div>
+        <div class="contract-amount">฿15,000/งวด</div>
+        <div class="contract-details">
+          <div>
+            <span>บริษัท โตโยต้าลิฟท์ ไทย จำกัด</span>
+            <ul class="contract-meta">
+              <li>Model LHE จำนวน 1 คัน</li>
+            </ul>
+          </div>
+          <span>ส่งคำขอ: 12 ธ.ค. 2567</span>
+        </div>
+      </div>
+
+      <div class="contract-item">
+        <div class="contract-header">
+          <div class="contract-id">SV250011 (Sale - คุณบี)</div>
+          <span class="status-badge status-pending">Pending</span>
+        </div>
+        <div class="contract-amount">฿28,000/งวด</div>
+        <div class="contract-details">
+          <div>
+            <span>บริษัท พรีเมียม โลจิสติกส์</span>
+            <ul class="contract-meta">
+              <li>Model LPE จำนวน 1 คัน</li>
+            </ul>
+          </div>
+          <span>ส่งคำขอ: 10 ธ.ค. 2567</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header-row">
+      <h2 class="card-title">รออนุมัติสัญญาบริการ (Agent)</h2>
+      <button class="card-link-btn" type="button">ดูทั้งหมด</button>
+    </div>
+    <div class="scroll-list">
+      <div class="contract-item">
+        <div class="contract-header">
+          <div class="contract-id">SV250020 (Agent - Agent A)</div>
+          <span class="status-badge status-pending">Pending</span>
+        </div>
+        <div class="contract-amount">฿22,000/งวด</div>
+        <div class="contract-details">
+          <div>
+            <span>บริษัท เทรดดิ้ง เซ็นเตอร์</span>
+            <ul class="contract-meta">
+              <li>Model RRE จำนวน 1 คัน</li>
+            </ul>
+          </div>
+          <span>ส่งคำขอ: 11 ธ.ค. 2567</span>
+        </div>
+      </div>
+
+      <div class="contract-item">
+        <div class="contract-header">
+          <div class="contract-id">SV250021 (Agent - Agent B)</div>
+          <span class="status-badge status-pending">Pending</span>
+        </div>
+        <div class="contract-amount">฿18,500/งวด</div>
+        <div class="contract-details">
+          <div>
+            <span>บริษัท ซัพพลายเชน โซลูชั่น</span>
+            <ul class="contract-meta">
+              <li>Model LHE จำนวน 1 คัน</li>
+            </ul>
+          </div>
+          <span>ส่งคำขอ: 09 ธ.ค. 2567</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="content-grid" style="max-width: 1400px; margin: 0 auto; margin-top: 15px; margin-bottom: 10px;">
+  <!-- กำหนดการรับชำระค่าเช่า -->
+  <div class="card">
+    <h2 class="card-title">กำหนดการรับชำระค่าเช่า (Sale)</h2>
+    <div class="payment-timeline scroll-list">
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <h4>CT250010 - งวด 1/6</h4>
+          <div>Sale - คุณเอ</div>
+          <p>บริษัท โลจิสติกส์ โปร จำกัด</p>
+          <p style="color: #f97316;">⏱ ครบกำหนด - 5 ม.ค. 2567</p>
+          <div class="timeline-amount">฿85,000</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <h4>CT250011 - งวด 3/8</h4>
+          <div>Agent - Agent A</div>
+          <p>ห้างหุ้นส่วน ไทยคลัง</p>
+          <p style="color: #f97316;">⏱ ครบกำหนด - 28 ม.ค. 2567</p>
+          <div class="timeline-amount">฿125,000</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <h4>CT250012 - งวด 2/4</h4>
+          <div>Sale - คุณบี</div>
+          <p>บริษัท แมนูแฟคเจอริ่ง</p>
+          <p style="color: #f97316;">⏱ ครบกำหนด - 30 ม.ค. 2567</p>
+          <div class="timeline-amount">฿45,000</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <h4>CT250013 - งวด 6/6</h4>
+          <div>Agent - Agent B</div>
+          <p>บริษัท คลังสินค้าไทย</p>
+          <p style="color: #f97316;">⏱ ครบกำหนด - 5 ก.พ. 2567</p>
+          <div class="timeline-amount">฿60,000</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h2 class="card-title">กำหนดการรับชำระค่าเช่า (Agent)</h2>
+    <div class="payment-timeline scroll-list">
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <h4>CT250020 - งวด 1/12</h4>
+          <div>Agent - Agent A</div>
+          <p>บริษัท เทรดดิ้ง เซ็นเตอร์</p>
+          <p style="color: #f97316;">⏱ ครบกำหนด - 12 ม.ค. 2567</p>
+          <div class="timeline-amount">฿72,000</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <h4>CT250021 - งวด 4/10</h4>
+          <div>Sale - คุณซี</div>
+          <p>บริษัท ซัพพลายเชน โซลูชั่น</p>
+          <p style="color: #f97316;">⏱ ครบกำหนด - 22 ม.ค. 2567</p>
+          <div class="timeline-amount">฿90,000</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <h4>CT250022 - งวด 2/6</h4>
+          <div>Agent - Agent C</div>
+          <p>บริษัท เวร์เฮ้าส์ โซลูชั่น</p>
+          <p style="color: #f97316;">⏱ ครบกำหนด - 2 ก.พ. 2567</p>
+          <div class="timeline-amount">฿58,000</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <h4>CT250023 - งวด 1/4</h4>
+          <div>Sale - คุณดี</div>
+          <p>ห้างหุ้นส่วน คอนสตรัคชั่น</p>
+          <p style="color: #f97316;">⏱ ครบกำหนด - 10 ก.พ. 2567</p>
+          <div class="timeline-amount">฿110,000</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const hasChart = typeof window.Chart !== 'undefined';
+
+  // ========= Helpers =========
+  const pad2 = (n) => String(n).padStart(2, '0');
+  const toYMD = (d) => `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+  const safeDate = (v) => {
+    if (!v) return null;
+    const d = new Date(v);
+    return isNaN(d.getTime()) ? null : d;
+  };
+
+  const monthKey = (d) => `${d.getFullYear()}-${pad2(d.getMonth()+1)}`;
+  const monthRangeKeys = (startDateStr, endDateStr) => {
+    const s = safeDate(startDateStr);
+    const e = safeDate(endDateStr);
+    if (!s || !e) return [];
+    const start = new Date(Math.min(s.getTime(), e.getTime()));
+    const end = new Date(Math.max(s.getTime(), e.getTime()));
+    const cur = new Date(start.getFullYear(), start.getMonth(), 1);
+    const last = new Date(end.getFullYear(), end.getMonth(), 1);
+    const keys = [];
+    while (cur <= last) {
+      keys.push(`${cur.getFullYear()}-${pad2(cur.getMonth()+1)}`);
+      cur.setMonth(cur.getMonth() + 1);
+    }
+    return keys;
+  };
+
+  const formatRange = (startDateStr, endDateStr) => {
+    const s = safeDate(startDateStr);
+    const e = safeDate(endDateStr);
+    if (!s || !e) return '';
+    const ss = new Date(Math.min(s.getTime(), e.getTime()));
+    const ee = new Date(Math.max(s.getTime(), e.getTime()));
+    const sTxt = `${pad2(ss.getDate())}/${pad2(ss.getMonth()+1)}/${ss.getFullYear()}`;
+    const eTxt = `${pad2(ee.getDate())}/${pad2(ee.getMonth()+1)}/${ee.getFullYear()}`;
+    return `${sTxt} - ${eTxt}`;
+  };
+
+  // ========= Mock data (stable) =========
+  // saleMonthly: { saleName: { 'YYYY-MM': { c: quotations, u: services } } }
+  const sales = ['คุณเอ','คุณบี','คุณซี','คุณดี','คุณอี'];
+  const agents = ['Agent A','Agent B','Agent C','Agent D','Agent E'];
+  const saleMonthly = (() => {
+    const obj = {};
+    sales.forEach((s) => (obj[s] = {}));
+    const years = [2024, 2025];
+    years.forEach((y) => {
+      for (let m = 1; m <= 12; m++) {
+        const mk = `${y}-${pad2(m)}`;
+        sales.forEach((s, si) => {
+          // Deterministic pattern (no random)
+          const base = ((y - 2023) * 7 + m * 3 + si * 5) % 12;
+          const services = Math.max(1, 3 + (base % 7));          // 3..9
+          const quotations = Math.max(services, services + (base % 4) + 1); // >= services
+          obj[s][mk] = { c: quotations, u: services };
+        });
+      }
+    });
+    return obj;
+  })();
+
+  // transactions for forklift-by-sale-by-model chart
+  const forkliftModels = ['LHE','LPE','RRE'];
+  const saleForkTx = (() => {
+    // Unified mock transactions for Sale + Agent (deterministic)
+    const tx = [];
+    const years = [2024, 2025];
+    const days = [3, 12, 24];
+
+    const groups = [
+      { role: 'Sale', people: sales, seed: 7 },
+      { role: 'Agent', people: agents, seed: 13 },
+    ];
+
+    years.forEach((y, yi) => {
+      for (let m = 1; m <= 12; m++) {
+        groups.forEach((g, gi) => {
+          g.people.forEach((person, pi) => {
+            forkliftModels.forEach((model, mi) => {
+              const base = (yi * 11 + m * 3 + pi * 4 + mi * 5 + g.seed + gi * 9) % 9 + 1;
+              const boost = model === 'LHE' ? 2 : model === 'RRE' ? 1 : 0;
+              const qty = base + boost; // 3..13-ish
+              days.forEach((d, di) => {
+                const portion = di === 0 ? 0.40 : di === 1 ? 0.35 : 0.25;
+                const q = Math.max(1, Math.round(qty * portion));
+                tx.push({ date: `${y}-${pad2(m)}-${pad2(d)}`, role: g.role, person, model, qty: q });
+              });
+            });
+          });
+        });
+      }
+    });
+    return tx;
+  })();
+
+// ========= Section 1: Sale & Agent Compare (Summary) =========
+  const startEl = document.getElementById('saleStartDate');
+  const endEl = document.getElementById('saleEndDate');
+  const applyBtn = document.getElementById('saleApplyBtn');
+  const resetBtn = document.getElementById('saleResetBtn');
+  const compareCanvas = document.getElementById('saleCompareChart');
+  const chipsEl = document.getElementById('saleSummaryChips');
+  const rangeEl = document.getElementById('saleTableRange');
+
+  const saleTableBody = document.querySelector('#saleSummaryTableSale tbody');
+  const agentTableBody = document.querySelector('#saleSummaryTableAgent tbody');
+
+  // ---------- Agent mock data (deterministic) ----------
+  const agentMonthly = (() => {
+    const obj = {};
+    agents.forEach((a) => (obj[a] = {}));
+    const years = [2024, 2025];
+    years.forEach((y) => {
+      for (let m = 1; m <= 12; m++) {
+        const mk = `${y}-${pad2(m)}`;
+        agents.forEach((a, ai) => {
+          // Deterministic pattern (different from Sale)
+          const base = ((y - 2022) * 5 + m * 4 + ai * 6) % 13;
+          const services = Math.max(1, 2 + (base % 8));                 // 2..9
+          const quotations = Math.max(services, services + (base % 5)); // >= services
+          obj[a][mk] = { c: quotations, u: services };
+        });
+      }
+    });
+    return obj;
+  })();
+
+  function sumByPerson(monthlyMap, name, keys) {
+    let quotations = 0;
+    let services = 0;
+    const map = monthlyMap[name] || {};
+    keys.forEach((k) => {
+      const row = map[k];
+      if (!row) return;
+      const c = row.c || 0;
+      const u = row.u || 0;
+      quotations += Math.max(c, u);
+      services += Math.min(c, u);
+    });
+    return { name, quotations, services };
+  }
+
+  function sumGroup(monthlyMap, keys) {
+    return Object.keys(monthlyMap).reduce((acc, person) => {
+      const r = sumByPerson(monthlyMap, person, keys);
+      acc.quotations += r.quotations;
+      acc.services += r.services;
+      return acc;
+    }, { quotations: 0, services: 0 });
+  }
+
+  function renderChipsSaleAgent(saleGroup, agentGroup, rangeText) {
+    if (!chipsEl) return;
+    const totalQ = saleGroup.quotations + agentGroup.quotations;
+    const totalS = saleGroup.services + agentGroup.services;
+    const winner = (saleGroup.quotations >= agentGroup.quotations) ? 'Sale' : 'Agent';
+
+    chipsEl.innerHTML = `
+      <div style="padding: 0.75rem 1rem; background:#f9fbff; border-radius:10px; border:1px solid #e5edf8;">
+        <div style="font-size: 0.75rem; color:#64748b; margin-bottom:0.25rem;">สรุปรวม (Sale + Agent)</div>
+        <div style="font-size:1rem; font-weight:700; color:var(--primary-color);">${totalQ} ใบเสนอราคา / ${totalS} สัญญาบริการ</div>
+        <div style="font-size:0.75rem; color:#64748b; margin-top:0.25rem;">ช่วงวันที่: ${rangeText || '-'}</div>
+      </div>
+
+      <div style="padding: 0.75rem 1rem; background:#e3f0ff; border-radius:10px; border:1px solid #bfdbfe;">
+        <div style="font-size: 0.75rem; color:#1d4ed8; margin-bottom:0.25rem;">Sale (รวม)</div>
+        <div style="font-size:1rem; font-weight:700; color:#1d4ed8;">${saleGroup.quotations} ใบเสนอราคา / ${saleGroup.services} สัญญาบริการ</div>
+      </div>
+
+      <div style="padding: 0.75rem 1rem; background:#fff7e6; border-radius:10px; border:1px solid #fed7aa;">
+        <div style="font-size: 0.75rem; color:#b45309; margin-bottom:0.25rem;">Agent (รวม)</div>
+        <div style="font-size:1rem; font-weight:700; color:#b45309;">${agentGroup.quotations} ใบเสนอราคา / ${agentGroup.services} สัญญาบริการ</div>
+      </div>
+
+      
+      
+
+
+`;
+  }
+
+  function renderPeopleTable(tbody, rows) {
+    if (!tbody) return;
+    const sorted = rows.slice().sort((a, b) => b.quotations - a.quotations);
+    tbody.innerHTML = sorted.map((r, i) => `
+      <tr>
+        <td style="text-align:center;">${i + 1}</td>
+        <td>${r.name}${i === 0 ? ' 🏆' : ''}</td>
+        <td style="text-align:right;">${r.quotations}</td>
+        <td style="text-align:right;">${r.services}</td>
+      </tr>
+    `).join('');
+  }
+
+  let compareChart = null;
+  if (compareCanvas && hasChart) {
+    compareChart = new Chart(compareCanvas.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: ['Sale', 'Agent'],
+        datasets: [
+          { label: 'จำนวนใบเสนอราคา', data: [0, 0], backgroundColor: 'rgba(31, 111, 178, 0.85)', borderWidth: 0 },
+          { label: 'จำนวนสัญญาบริการ', data: [0, 0], backgroundColor: 'rgba(255, 122, 26, 0.85)', borderWidth: 0 },
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' }, tooltip: { enabled: true } },
+        scales: { x: { grid: { display: false } }, y: { beginAtZero: true, ticks: { precision: 0 } } }
+      }
+    });
+  }
+
+  function updateSaleAgentCompare() {
+    if (!startEl || !endEl) return;
+
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const defaultStart = `${yyyy}-01-01`;
+    const defaultEnd = toYMD(today);
+
+    const startVal = startEl.value || defaultStart;
+    const endVal = endEl.value || defaultEnd;
+
+    const keys = monthRangeKeys(startVal, endVal);
+    const rangeText = formatRange(startVal, endVal);
+
+    const saleGroup = sumGroup(saleMonthly, keys);
+    const agentGroup = sumGroup(agentMonthly, keys);
+
+    const saleRows = Object.keys(saleMonthly).map(n => sumByPerson(saleMonthly, n, keys));
+    const agentRows = Object.keys(agentMonthly).map(n => sumByPerson(agentMonthly, n, keys));
+
+    renderPeopleTable(saleTableBody, saleRows);
+    renderPeopleTable(agentTableBody, agentRows);
+
+    if (rangeEl) rangeEl.textContent = rangeText ? `ช่วงวันที่: ${rangeText}` : '';
+    renderChipsSaleAgent(saleGroup, agentGroup, rangeText);
+
+    if (compareChart) {
+      compareChart.data.datasets[0].data = [saleGroup.quotations, agentGroup.quotations];
+      compareChart.data.datasets[1].data = [saleGroup.services, agentGroup.services];
+      compareChart.update();
+    }
+  }
+
+  // Defaults
+  (function initSummaryDateDefaults(){
+    if (!startEl || !endEl) return;
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    if (!startEl.value) startEl.value = `${yyyy}-01-01`;
+    if (!endEl.value) endEl.value = toYMD(today);
+  })();
+
+  if (applyBtn) applyBtn.addEventListener('click', updateSaleAgentCompare);
+  if (resetBtn) resetBtn.addEventListener('click', () => {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    if (startEl) startEl.value = `${yyyy}-01-01`;
+    if (endEl) endEl.value = toYMD(today);
+    updateSaleAgentCompare();
+  });
+  if (startEl) startEl.addEventListener('change', updateSaleAgentCompare);
+  if (endEl) endEl.addEventListener('change', updateSaleAgentCompare);
+
+  updateSaleAgentCompare();
+
+  // ========= Section 2: Model chart (month/year) =========
+  const modelCanvas = document.getElementById('modelHoursChart');
+  const modelStartEl = document.getElementById('modelStartDate');
+  const modelEndEl = document.getElementById('modelEndDate'); 
+
+  function getModelSeriesByRange(startDate, endDate) {
+    const sTime = Math.min(startDate.getTime(), endDate.getTime());
+    const eTime = Math.max(startDate.getTime(), endDate.getTime());
+    const sum = { LHE: 0, LPE: 0, RRE: 0 };
+
+    // derive from transactions (same dataset with Sale chart) to keep preview stable
+    saleForkTx.forEach((t) => {
+      const d = new Date(t.date);
+      const tt = d.getTime();
+      if (tt < sTime || tt > eTime) return;
+      if (sum[t.model] != null) sum[t.model] += (t.qty || 0);
+    });
+
+    return { labels: ['LHE','LPE','RRE'], values: [sum.LHE, sum.LPE, sum.RRE] };
+  }
+
+  let modelChart = null;
+  if (modelCanvas && hasChart) {
+    modelChart = new Chart(modelCanvas.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: ['LHE','LPE','RRE'],
+        datasets: [{
+          label: 'จำนวนรถยกที่ทำสัญญา (คัน)',
+          data: [0,0,0],
+          borderWidth: 0,
+          backgroundColor: 'rgba(31, 111, 178, 0.85)'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { enabled: true } },
+        scales: { x: { grid: { display: false } }, y: { beginAtZero: true, ticks: { precision: 0 } } }
+      }
+    });
+  }
+
+  function updateModelChart() {
+    if (!modelChart) return;
+
+    // Default: first day of current month -> today
+    const today = new Date();
+    const defaultStart = new Date(today.getFullYear(), today.getMonth(), 1);
+
+    const s = safeDate(modelStartEl && modelStartEl.value) || defaultStart;
+    const e = safeDate(modelEndEl && modelEndEl.value) || today;
+
+    const series = getModelSeriesByRange(s, e);
+    modelChart.data.labels = series.labels;
+    modelChart.data.datasets[0].data = series.values;
+    modelChart.update();
+  }
+
+  // init default values so chart isn't empty
+  (function initModelDateDefaults(){
+    const today = new Date();
+    const start = new Date(today.getFullYear(), today.getMonth(), 1);
+    if (modelStartEl && !modelStartEl.value) modelStartEl.value = toYMD(start);
+    if (modelEndEl && !modelEndEl.value) modelEndEl.value = toYMD(today);
+  })();
+
+  if (modelStartEl) modelStartEl.addEventListener('change', updateModelChart);
+  if (modelEndEl) modelEndEl.addEventListener('change', updateModelChart);
+  updateModelChart();
+
+  // ========= Section 3: Forklifts per Sale (stacked by model) =========
+  const sfStartEl = document.getElementById('saleForkStartDate');
+  const sfEndEl = document.getElementById('saleForkEndDate');
+  const sfModeEl = document.getElementById('saleForkSaleFilter');
+  const saleForkCanvas = document.getElementById('saleForkliftChart');
+
+  // Forklift-by-person chart (stacked). Mode = SALE_AGENT | SALE | AGENT
+  let saleForkChart;
+
+  function initSaleForkChart() {
+    if (!saleForkCanvas) return;
+    saleForkChart = new Chart(saleForkCanvas.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: [],
+        datasets: [
+          { label: 'LHE', data: [], backgroundColor: 'rgba(31, 111, 178, 0.85)', borderWidth: 0 },
+          { label: 'LPE', data: [], backgroundColor: 'rgba(255, 122, 26, 0.85)', borderWidth: 0 },
+          { label: 'RRE', data: [], backgroundColor: 'rgba(15, 23, 42, 0.65)', borderWidth: 0 },
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: true }, tooltip: { enabled: true } },
+        scales: {
+          x: { stacked: true, grid: { display: false } },
+          y: { stacked: true, beginAtZero: true, ticks: { precision: 0 } }
+        }
+      }
+    });
+  }
+
+  function getForkMode() {
+    const mode = sfModeEl ? sfModeEl.value : 'SALE_AGENT';
+    return mode || 'SALE_AGENT';
+  }
+
+  function updateSaleForkChart() {
+    if (!saleForkChart) return;
+
+    const today = new Date();
+    const defaultStart = new Date(today.getFullYear(), today.getMonth(), 1);
+
+    const s = safeDate(sfStartEl && sfStartEl.value) || defaultStart;
+    const e = safeDate(sfEndEl && sfEndEl.value) || today;
+
+    const sTime = Math.min(s.getTime(), e.getTime());
+    const eTime = Math.max(s.getTime(), e.getTime());
+
+    const mode = getForkMode();
+
+    // labels setup
+    let labels = [];
+    let roleFilter = null;
+
+    if (mode === 'SALE') {
+      labels = sales.slice();
+      roleFilter = 'Sale';
+    } else if (mode === 'AGENT') {
+      labels = agents.slice();
+      roleFilter = 'Agent';
+    } else {
+      // SALE_AGENT: compare as 2 bars (Sale vs Agent)
+      labels = ['Sale', 'Agent'];
+      roleFilter = null;
+    }
+
+    const agg = {};
+    labels.forEach((k) => { agg[k] = { LHE: 0, LPE: 0, RRE: 0 }; });
+
+    saleForkTx.forEach((item) => {
+      const d = new Date(item.date);
+      const t = d.getTime();
+      if (t < sTime || t > eTime) return;
+
+      if (mode === 'SALE_AGENT') {
+        // bucket by role
+        if (agg[item.role]) agg[item.role][item.model] += (item.qty || 0);
+        return;
+      }
+
+      if (roleFilter && item.role !== roleFilter) return;
+      if (!agg[item.person]) return;
+      agg[item.person][item.model] += (item.qty || 0);
+    });
+
+    saleForkChart.data.labels = labels;
+    saleForkChart.data.datasets[0].data = labels.map((k) => agg[k].LHE);
+    saleForkChart.data.datasets[1].data = labels.map((k) => agg[k].LPE);
+    saleForkChart.data.datasets[2].data = labels.map((k) => agg[k].RRE);
+    saleForkChart.update();
+  }
+
+  // init
+  initSaleForkChart();
+
+  // init default date values so chart isn't empty
+  (function initSaleForkDates(){
+    const today = new Date();
+    const start = new Date(today.getFullYear(), today.getMonth(), 1);
+    if (sfStartEl && !sfStartEl.value) sfStartEl.value = toYMD(start);
+    if (sfEndEl && !sfEndEl.value) sfEndEl.value = toYMD(new Date());
+  })();
+
+  if (sfStartEl) sfStartEl.addEventListener('change', updateSaleForkChart);
+  if (sfEndEl) sfEndEl.addEventListener('change', updateSaleForkChart);
+  if (sfModeEl) sfModeEl.addEventListener('change', updateSaleForkChart);
+
+  // ========= Wire main buttons =========
+  if (applyBtn) applyBtn.addEventListener('click', () => {
+    updateSaleAgentCompare();
+    updateModelChart();
+    updateSaleForkChart();
+  });
+
+  if (resetBtn) resetBtn.addEventListener('click', () => {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+
+    // Summary range
+    if (startEl) startEl.value = `${yyyy}-01-01`;
+    if (endEl) endEl.value = toYMD(today);
+
+    // Model chart range
+    const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+    if (modelStartEl) modelStartEl.value = toYMD(monthStart);
+    if (modelEndEl) modelEndEl.value = toYMD(today);
+
+    // Forklift chart range + mode
+    if (sfStartEl) sfStartEl.value = toYMD(monthStart);
+    if (sfEndEl) sfEndEl.value = toYMD(today);
+    if (sfModeEl) sfModeEl.value = 'SALE_AGENT';
+
+    updateSaleAgentCompare();
+    updateModelChart();
+    updateSaleForkChart();
+  });
+
+  // ========= Init everything =========
+  updateSaleAgentCompare();
+  updateModelChart();
+  updateSaleForkChart();
+
+});
+</script>
+
+</body>
+</html>
