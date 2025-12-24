@@ -493,7 +493,7 @@
         padding: 0.4rem 1.2rem;
         border-radius: 999px;
         border: none;
-        background: var(--primary-color);
+        background: #1F6FB2; /* blue */
         color: #ffffff;
         font-weight: 600;
         cursor: pointer;
@@ -502,7 +502,7 @@
       }
   
             .card-link-btn:hover {
-        background: #17548a;
+        background: #185a95;
         box-shadow: 0 6px 14px rgba(31, 111, 178, 0.45);
         transform: translateY(-1px);
         color: #ffffff;
@@ -611,6 +611,45 @@
 }
 /* ==== END FIX ==== */
 
+/* ===== Reset buttons (make red) ===== */
+button[id$="ResetBtn"], 
+#saleResetBtn, 
+#forkliftResetBtn {
+  background: #dc3545 !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 8px 20px rgba(220,53,69,0.22) !important;
+}
+button[id$="ResetBtn"]:hover, 
+#saleResetBtn:hover, 
+#forkliftResetBtn:hover {
+  background: #bb2d3b !important;
+}
+button[id$="ResetBtn"]:active, 
+#saleResetBtn:active, 
+#forkliftResetBtn:active {
+  transform: translateY(1px);
+}
+
+
+/* ===== Apply/Update & Reset buttons (same size) ===== */
+#saleApplyBtn, #saleResetBtn,
+#forkliftUpdateBtn, #forkliftResetBtn,
+#applyBtn, #resetBtn,
+button[id$="ApplyBtn"], button[id$="UpdateBtn"], button[id$="ResetBtn"]{
+  height: 38px !important;
+  min-width: 110px;
+  padding: 0 18px !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  line-height: 1 !important;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border-radius: 999px;
+}
+
 </style>
 </head>
 <body class="h-full">
@@ -669,7 +708,7 @@
 </div>
 <!-- บัญชีทั้งหมด -->
 <div class="dashboard-card text-center">
-<div class="icon-bg">☰</div>
+<div class="icon-bg"><i class="fas fa-users"></i></div>
 <div class="stat-value">155</div>
 <div class="stat-title">บัญชีทั้งหมด</div>
 <div class="stat-breakdown">
