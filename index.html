@@ -717,7 +717,7 @@ button[id$="ApplyBtn"], button[id$="UpdateBtn"], button[id$="ResetBtn"]{
 <span>0</span>
 </div>
 <div class="stat-breakdown-row">
-<span>บัญชีบุคคลธรรมดา</span>
+<span>บัญชีสมาชิก</span>
 <span>100</span>
 </div>
 <div class="stat-breakdown-row">
@@ -772,13 +772,13 @@ button[id$="ApplyBtn"], button[id$="UpdateBtn"], button[id$="ResetBtn"]{
   <!-- Tables -->
   <div style="margin-top:1rem;">
     <div style="display:flex; justify-content:space-between; align-items:center; gap:0.75rem; margin-bottom:0.5rem;">
-      <div style="font-size:0.95rem; font-weight:600; color:var(--dark-text);">สรุป Sale & Agent (ตาราง)</div>
+      <div style="font-size:0.95rem; font-weight:600; color:var(--dark-text);">สรุป Top 5 Sale & Agent (ตาราง)</div>
       <div id="saleTableRange" style="font-size:0.78rem; color:var(--muted-text);"></div>
     </div>
 
     <div class="content-grid" style="margin-bottom:0;">
       <div style="overflow-x:auto;">
-        <div style="font-size:0.88rem; font-weight:700; color:var(--primary-color); margin-bottom:0.35rem;">Sale</div>
+        <div style="font-size:0.88rem; font-weight:700; color:var(--primary-color); margin-bottom:0.35rem;">Top 5 Sale</div>
         <table class="simple-table" id="saleSummaryTableSale">
           <thead>
             <tr>
@@ -793,7 +793,7 @@ button[id$="ApplyBtn"], button[id$="UpdateBtn"], button[id$="ResetBtn"]{
       </div>
 
       <div style="overflow-x:auto;">
-        <div style="font-size:0.88rem; font-weight:700; color:var(--secondary-color); margin-bottom:0.35rem;">Agent</div>
+        <div style="font-size:0.88rem; font-weight:700; color:var(--secondary-color); margin-bottom:0.35rem;">Top 5 Agent</div>
         <table class="simple-table" id="saleSummaryTableAgent">
           <thead>
             <tr>
@@ -903,13 +903,13 @@ button[id$="ApplyBtn"], button[id$="UpdateBtn"], button[id$="ResetBtn"]{
 
 <!-- Charts -->
 <div class="card" style="max-width: 1400px; margin: 0 auto; margin-top: 15px;">
-<h2 class="card-title">กราฟสรุปรุ่นรถยกที่ทำสัญญา และจำนวนรถยกที่ Sale ทำสัญญา</h2>
+<h2 class="card-title">กราฟสรุปรุ่นรถยกที่ทำสัญญา และจำนวนรถยกที่ Sale & Agent ทำสัญญา</h2>
 <p style="font-size:0.8rem; color:var(--muted-text); margin-top:-0.2rem; margin-bottom:0.6rem;">
             มองภาพรวม “รุ่นรถยกที่ทำสัญญา” และ “จำนวนรถยกที่ Sale ทำสัญญา” (ตัวอย่างข้อมูลจำลอง)</p>
 <div class="chart-grid">
   <!-- ซ้าย: กราฟสรุปจำนวนสัญญา -->
   <div class="chart-card">
-    <div class="card-title" style="font-size:0.9rem;">กราฟสรุปรุ่นรถยกที่ทำสัญญา</div>
+    <div class="card-title" style="font-size:0.9rem;">กราฟสรุปรุ่นรถยกที่ทำสัญญา Sale & Agent</div>
     <div class="chart-filters">
       <div style="display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
         <div style="display:flex; flex-direction:column; gap:0.25rem;">
@@ -929,7 +929,7 @@ button[id$="ApplyBtn"], button[id$="UpdateBtn"], button[id$="ResetBtn"]{
 
   <!-- ขวา: กราฟสรุปการชำระเงินแพ็ค/ชม. (แท่งสีส้ม) -->
   <div class="chart-card">
-    <div class="card-title" style="font-size:0.9rem;">กราฟจำนวนรถยกที่ Sale ทำสัญญา</div>
+    <div class="card-title" style="font-size:0.9rem;">กราฟจำนวนรถยกที่ Sale & Agent ทำสัญญา</div>
     <div class="chart-subtitle" style="margin-top:-0.35rem;">
       แสดงจำนวนรถยกที่ทำสัญญา เลือกมุมมอง Sale&Agent / Sale / Agent (ตัวอย่างข้อมูลจำลอง) ตามช่วงวันที่ที่เลือก
     </div>
@@ -1213,7 +1213,10 @@ button[id$="ApplyBtn"], button[id$="UpdateBtn"], button[id$="ResetBtn"]{
 <div class="content-grid" style="max-width: 1400px; margin: 0 auto; margin-top: 15px; margin-bottom: 10px;">
   <!-- กำหนดการรับชำระค่าเช่า -->
   <div class="card">
+    <div class="card-header-row">
     <h2 class="card-title">กำหนดการรับชำระค่าเช่า (Sale)</h2>
+    <button class="card-link-btn" type="button">ดูทั้งหมด</button>
+  </div>
     <div class="payment-timeline scroll-list">
       <div class="timeline-item">
         <div class="timeline-dot"></div>
@@ -1258,7 +1261,10 @@ button[id$="ApplyBtn"], button[id$="UpdateBtn"], button[id$="ResetBtn"]{
     </div>
   </div>
   <div class="card">
+    <div class="card-header-row">
     <h2 class="card-title">กำหนดการรับชำระค่าเช่า (Agent)</h2>
+    <button class="card-link-btn" type="button">ดูทั้งหมด</button>
+    </div>
     <div class="payment-timeline scroll-list">
       <div class="timeline-item">
         <div class="timeline-dot"></div>
